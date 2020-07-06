@@ -7,6 +7,7 @@ import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -32,6 +33,18 @@ public class Product {
 
     @Column
     private Integer category_id;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade= CascadeType.ALL)
+    @JoinTable(name = "product_raw_photos",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "photo_id"))
+    private List<PhotoRaw> photoRawList;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade= CascadeType.ALL)
+    @JoinTable(name = "product_path_photos",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "photo_id"))
+    private List<PhotoPath> photoPathList;
 
     public Product() {
     }
@@ -80,6 +93,22 @@ public class Product {
 
     public void setCategoryId(Integer categoryId) {
         this.category_id = categoryId;
+    }
+
+    public List<PhotoRaw> getPhotoRawList() {
+        return photoRawList;
+    }
+
+    public void setPhotoRawList(List<PhotoRaw> photoRawList) {
+        this.photoRawList = photoRawList;
+    }
+
+    public List<PhotoPath> getPhotoPathList() {
+        return photoPathList;
+    }
+
+    public void setPhotoPathList(List<PhotoPath> photoPathList) {
+        this.photoPathList = photoPathList;
     }
 
     @Override

@@ -1,10 +1,14 @@
 package ru.geekbrains.persist.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import ru.geekbrains.persist.enity.PhotoPath;
+import ru.geekbrains.persist.enity.PhotoRaw;
 import ru.geekbrains.persist.enity.Product;
 import ru.geekbrains.persist.repl.ProductMapper;
 import ru.geekbrains.persist.repl.ProductRepl;
@@ -12,6 +16,11 @@ import ru.geekbrains.persist.repo.ProductRepository;
 import ru.geekbrains.persist.service.interdafaces.ProductServerInterface;
 import ru.geekbrains.search.ProductSearch;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +28,9 @@ import java.util.Optional;
 public class ProductService implements ProductServerInterface {
 
     private ProductRepository repository;
+
+    @Value( "${upload.path}" )
+    private String uploadPath;
 
     @Autowired
     public ProductService(ProductRepository repository) {
@@ -31,8 +43,71 @@ public class ProductService implements ProductServerInterface {
     }
 
     @Transactional
-    public void save(Product product) {
+    public void save(ProductRepl productRepl) {
+
+        Product product = ProductMapper.MAPPER.toProduct(productRepl);
+
+        this.saveRawPhoto(productRepl, product);
+        this.savePathPhoto(productRepl, product);
+
         repository.save(product);
+    }
+
+    private void saveRawPhoto(ProductRepl productRepl, Product product){
+        if (productRepl.getNewPhotos() != null) {
+            for (MultipartFile newPhoto : productRepl.getNewPhotos()) {
+
+                if (product.getPhotoRawList() == null) {
+                    product.setPhotoRawList(new ArrayList<>());
+                }
+                PhotoRaw photoRaw = null;
+                try {
+                    photoRaw = new PhotoRaw(newPhoto.getBytes());
+                    photoRaw.setContentType(newPhoto.getContentType());
+                    photoRaw.setName(newPhoto.getOriginalFilename());
+                    product.getPhotoRawList().add(photoRaw);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void savePathPhoto(ProductRepl productRepl, Product product){
+
+        if (productRepl.getNewPhotos() != null) {
+            for (MultipartFile newPhoto : productRepl.getNewPhotos()) {
+
+                if (product.getPhotoPathList() == null) {
+                    product.setPhotoPathList(new ArrayList<>());
+                }
+                PhotoPath photoPath = null;
+                try {
+                    photoPath = new PhotoPath();
+
+                    Path folder = Paths.get(uploadPath);
+                    if (!Files.exists(folder)) {
+                        try {
+                            Files.createDirectories(folder);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Path path = Paths.get(folder.toString(), newPhoto.getOriginalFilename());
+
+                    newPhoto.transferTo(path);
+                    photoPath.setPath(path.toString());
+                    photoPath.setName(newPhoto.getOriginalFilename());
+                    product.getPhotoPathList().add(photoPath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void savePathPhoto(ProductRepl productRepl){
+
     }
 
     @Transactional(readOnly = true)
@@ -52,7 +127,10 @@ public class ProductService implements ProductServerInterface {
     }
 
     @Transactional
-    public void update(Product product) {
+    public void update(ProductRepl productRepl) {
+        Product product = ProductMapper.MAPPER.toProduct(productRepl);
+        this.saveRawPhoto(productRepl, product);
+        this.savePathPhoto(productRepl, product);
         repository.save(product);
     }
 
@@ -82,9 +160,9 @@ public class ProductService implements ProductServerInterface {
     }
 
     @Override
-    public boolean hasSameProduct(Product product) {
+    public boolean hasSameProduct(ProductRepl product) {
 
-        List<Product> products = repository.findByCostAndTitleAndIdNot(product.getCost(), product.getTitle(), product.getId());
+        List<Product> products = repository.findByCostAndTitleAndIdNot(product.getCost(), product.getTitle(), product.getId() == null ? 0 : product.getId());
 
         return products.size() > 0;
     }
