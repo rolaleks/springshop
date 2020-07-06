@@ -14,16 +14,16 @@ public interface ProductServerInterface {
 
     public Page<Product> findAll(ProductSearch search);
 
-    public void save(Product product);
+    public void save(ProductRepl product);
 
     public Optional<Product> findById(long id);
 
     public Optional<ProductRepl> findReplById(long id);
 
-    public void update(Product product);
+    public void update(ProductRepl product);
 
     public void delete(Long id);
 
-    public boolean hasSameProduct(Product product);
+    public boolean hasSameProduct(ProductRepl product);
 
 }

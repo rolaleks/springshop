@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.geekbrains.persist.enity.Product;
+import ru.geekbrains.persist.repl.ProductRepl;
 import ru.geekbrains.persist.service.interdafaces.ProductServerInterface;
 import ru.geekbrains.search.ProductSearch;
 
@@ -48,14 +49,14 @@ public class ProductsController {
     @GetMapping("create")
     public String create(Model model) {
 
-        model.addAttribute("product", new Product());
+        model.addAttribute("product", new ProductRepl());
         return "product/form";
     }
 
     @GetMapping("update/{id}")
     public String update(Model model, @PathVariable String id) {
 
-        model.addAttribute("product", productService.findById(Long.parseLong(id)));
+        model.addAttribute("product", productService.findReplById(Long.parseLong(id)).get());
         return "product/form";
     }
 
@@ -67,7 +68,7 @@ public class ProductsController {
     }
 
     @PostMapping
-    public String save(@Valid Product product, BindingResult bindingResult) {
+    public String save(ProductRepl product, BindingResult bindingResult) {
 
 
         if (productService.hasSameProduct(product)) {
@@ -75,7 +76,7 @@ public class ProductsController {
         }
 
         if (bindingResult.hasErrors()) {
-            return "product/form";
+            //return "product/form";
         }
 
         if (product.getId() == null) {
