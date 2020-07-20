@@ -62,6 +62,7 @@
                         <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p>
                 </div>
             </div>
+            <div th:include="layout/chat :: chat"/>
         </footer>
         <!--================ End footer Area  =================-->
     </body>
@@ -82,8 +83,11 @@
         <script th:src="@{/vendors/counter-up/jquery.waypoints.min.js}"></script>
         <script th:src="@{/vendors/flipclock/timer.js}"></script>
         <script th:src="@{/vendors/counter-up/jquery.counterup.js}"></script>
+        <script th:src="@{/webjars/sockjs-client/1.0.2/sockjs.min.js}"></script>
+        <script th:src="@{/webjars/stomp-websocket/2.3.3/stomp.min.js}"></script>
         <script th:src="@{/js/mail-script.js}"></script>
         <script th:src="@{/js/theme.js}"></script>
+        <script th:src="@{/js/chat.js}"></script>
     </th:block>
 
 </html>
