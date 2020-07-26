@@ -59,7 +59,7 @@
                                 </div>
                             </div>
                             <a th:href="@{/product/{id}(id=${product.id})}"><h4 th:text="${product.title}">Long Sleeve TShirt</h4></a>
-                            <h5 th:text="${product.cost}">$150.00</h5>
+                            <h5 class="ajax_product_price" th:data-id="${product.id}" th:text="${product.cost}">$150.00</h5>
                         </div>
                     </div>
                 </div>

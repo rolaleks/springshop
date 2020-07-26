@@ -19,6 +19,8 @@
         <module>shop-database</module>
         <module>shop-ui</module>
         <module>shop-admin-ui</module>
+        <module>product</module>
+        <module>zuul</module>
     </modules>
 
 </project>

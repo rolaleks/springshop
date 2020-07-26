@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import ru.geekbrains.persist.repl.ProductRepl;
 import ru.geekbrains.persist.service.interdafaces.ProductServerInterface;
+import ru.geekbrains.service.ProductFeignService;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,10 +16,12 @@ import java.util.Optional;
 public class ProductController {
 
     private ProductServerInterface productService;
+    private ProductFeignService productFeignService;
 
     @Autowired
-    public ProductController(ProductServerInterface productService) {
+    public ProductController(ProductServerInterface productService, ProductFeignService productFeignService) {
         this.productService = productService;
+        this.productFeignService = productFeignService;
     }
 
     @GetMapping("/product/{productId}")
@@ -29,6 +32,7 @@ public class ProductController {
         Optional<ProductRepl> product = productService.findReplById(productId);
 
         model.addAttribute("product", product.get());
+        model.addAttribute("price", productFeignService.getPrice(productId));
         return "product";
     }
 }
