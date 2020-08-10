@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.geekbrains.persist.enity.PhotoPath;
 import ru.geekbrains.persist.enity.PhotoRaw;
 import ru.geekbrains.persist.enity.Product;
+import ru.geekbrains.persist.repl.PhotoPathRepl;
+import ru.geekbrains.persist.repl.PhotoRawRepl;
 import ru.geekbrains.persist.repl.ProductMapper;
 import ru.geekbrains.persist.repl.ProductRepl;
 import ru.geekbrains.persist.repo.ProductRepository;
@@ -23,13 +25,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService implements ProductServerInterface {
 
     private ProductRepository repository;
 
-    @Value( "${upload.path}" )
+    @Value("${upload.path}")
     private String uploadPath;
 
     @Autowired
@@ -51,9 +54,10 @@ public class ProductService implements ProductServerInterface {
         this.savePathPhoto(productRepl, product);
 
         repository.save(product);
+        productRepl.setId(product.getId());
     }
 
-    private void saveRawPhoto(ProductRepl productRepl, Product product){
+    private void saveRawPhoto(ProductRepl productRepl, Product product) {
         if (productRepl.getNewPhotos() != null) {
             for (MultipartFile newPhoto : productRepl.getNewPhotos()) {
 
@@ -70,10 +74,13 @@ public class ProductService implements ProductServerInterface {
                     e.printStackTrace();
                 }
             }
+            productRepl.setPhotoRawList(product.getPhotoRawList().stream()
+                    .map(PhotoRawRepl::new)
+                    .collect(Collectors.toList()));
         }
     }
 
-    private void savePathPhoto(ProductRepl productRepl, Product product){
+    private void savePathPhoto(ProductRepl productRepl, Product product) {
 
         if (productRepl.getNewPhotos() != null) {
             for (MultipartFile newPhoto : productRepl.getNewPhotos()) {
@@ -103,10 +110,13 @@ public class ProductService implements ProductServerInterface {
                     e.printStackTrace();
                 }
             }
+            productRepl.setPhotoPathList(product.getPhotoPathList().stream()
+                    .map(PhotoPathRepl::new)
+                    .collect(Collectors.toList()));
         }
     }
 
-    private void savePathPhoto(ProductRepl productRepl){
+    private void savePathPhoto(ProductRepl productRepl) {
 
     }
 
@@ -166,5 +176,15 @@ public class ProductService implements ProductServerInterface {
 
         return products.size() > 0;
     }
+
+    public String getUploadPath() {
+        return uploadPath;
+    }
+
+
+    public void setUploadPath(String path) {
+        uploadPath = path;
+    }
+
 
 }
