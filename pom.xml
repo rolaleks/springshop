@@ -21,6 +21,7 @@
         <module>shop-admin-ui</module>
         <module>product</module>
         <module>zuul</module>
+        <module>shop-ui-tests</module>
     </modules>
 
 </project>
